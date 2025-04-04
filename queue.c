@@ -4,6 +4,7 @@
 
 int checkWin(struct game_state* state);
 void printState(struct game_state* state);
+int contains(struct linked_list*, int);
 
 void enqueue(struct queue *q, struct game_state state) {
     insert_at_head(&q->data, serialize(state));
@@ -27,19 +28,31 @@ int number_of_moves(struct game_state start) {
     list->head = node;
     q->data = *list;
     struct game_state state; 
-    
+
+    struct linked_list* visited = malloc(sizeof(struct linked_list));
+    struct list_node* a = malloc(sizeof(struct list_node));
+    a->value = -1;
+    a->next = NULL;
+    visited->head = a;
+
     int qSize = 1;
     while(qSize > 0){
 	state = dequeue(q);
 	qSize--;
-    		
+
 	//Base case	
 	if(checkWin(&state) == 1){
+	    free_list(*visited);
 	    free_list(q->data);
 	    free(q);
 	    return state.num_steps;
 	}
-	
+
+	if(contains(visited, serialize(state)) == 1){
+	    continue;
+	}
+	insert_at_head(visited, serialize(state));
+
 	if(state.empty_row < 3){
 	    move_up(&state);
 	    enqueue(q, state);
@@ -47,7 +60,7 @@ int number_of_moves(struct game_state start) {
 	    move_down(&state);
 	    state.num_steps -= 2;
 	}
-	
+
 	if(state.empty_row > 0){
 	    move_down(&state);
 	    enqueue(q, state);
@@ -72,12 +85,13 @@ int number_of_moves(struct game_state start) {
 	    state.num_steps-=2;
 	}
 
+
     }
-    
-    
+
+    free_list(*visited);
     free_list(q->data);
     free(q);
-
+    printf("NOT FOUND\n");
     return 0;
 }
 
@@ -105,4 +119,17 @@ void printState(struct game_state* state){
 	printf("\n");
     }
     printf("\n");
+}
+
+int contains(struct linked_list* list, int value){
+    struct list_node* node = list->head;
+    while(node->next != NULL){
+	if(node->value == value){
+	    return 1;
+	}
+
+	node = node->next;
+    }
+
+    return 0;
 }

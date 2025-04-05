@@ -6,6 +6,7 @@ int checkWin(struct game_state* state);
 void printState(struct game_state* state);
 int contains(struct linked_list*, struct game_state*);
 int checkVisited(struct queue*, struct game_state*);
+void printVisited(struct linked_list*);
 
 void enqueue(struct queue *q, struct game_state state) {
     insert_at_head(&q->data, serialize(state));
@@ -43,18 +44,30 @@ int number_of_moves(struct game_state start) {
 
 	//Base case	
 	if(checkWin(&state) == 1){
+	    //printVisited(visited);
 	    free_list(*visited);
 	    free_list(q->data);
 	    free(q);
 	    return state.num_steps;
 	}
 
+	/*
+
+	int steps = state.num_steps;
+	state.num_steps = 0;
+
 	if(contains(visited, &state) == 1){
 	    continue;
 	}
 
 	insert_at_head(visited, serialize(state));
-	
+	state.num_steps = steps;
+	//printState(&state);
+	*/
+
+	if(checkVisited(q, &state)){
+	    continue;
+	}
 
 	if(state.empty_row < 3){
 	    move_up(&state);
@@ -89,6 +102,8 @@ int number_of_moves(struct game_state start) {
 	}
     }
 
+    printVisited(visited);
+
     free_list(*visited);
     free_list(q->data);
     free(q);
@@ -122,10 +137,24 @@ void printState(struct game_state* state){
     printf("\n");
 }
 
+void printVisited(struct linked_list* list){
+    struct list_node* node = list->head;
+    while(node->next != NULL){
+	struct game_state state = deserialize(node->value);
+	printState(&state);
+
+	node = node->next;
+    }
+}
+
 int contains(struct linked_list* list, struct game_state* valueState){
     struct list_node* node = list->head;
-    struct game_state curr;
-    int r,c;
+    int curr;
+    int steps = valueState->num_steps;
+    valueState->num_steps = 0;
+    int target = serialize(*valueState);
+    valueState->num_steps = steps;
+    //int r,c;
 
     while(node->next != NULL){
 	if(node->value == 0){
@@ -133,7 +162,12 @@ int contains(struct linked_list* list, struct game_state* valueState){
 	    continue;
 	}
 
-	curr = deserialize(node->value);
+	curr = node->value;
+	if(curr == target){
+	    return 1;
+	}
+
+	/*
 	int flag = 0;
 	for(r = 0; r < 4 && flag == 0; r++){
 	    for(c = 0; c < 4 && flag == 0; c++){
@@ -144,7 +178,7 @@ int contains(struct linked_list* list, struct game_state* valueState){
 	}
 	if(flag == 0){
 	    return 1;
-	}
+	}*/
 
 	node = node->next;
     }
@@ -155,10 +189,16 @@ int contains(struct linked_list* list, struct game_state* valueState){
 int checkVisited(struct queue* q, struct game_state* state){
     struct linked_list list = q->data;
     struct list_node* node = list.head;
+    long target = serialize(*state);
 
     while(node->next != NULL){
-	struct game_state curr = deserialize(node->value);
+	// struct game_state curr = deserialize(node->value);
 	
+	if(node->value == target){
+	    return 1;
+	}
+
+	/*
 	int flag = 0;
 	int r, c;
 	for(r = 0; r < 4 && flag == 0; r++){
@@ -172,6 +212,7 @@ int checkVisited(struct queue* q, struct game_state* state){
 	if(flag == 0){
 	    return 1;
 	}
+	*/
 
 	node = node->next;
     }

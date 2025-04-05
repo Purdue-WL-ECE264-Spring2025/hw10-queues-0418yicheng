@@ -5,6 +5,7 @@
 int checkWin(struct game_state* state);
 void printState(struct game_state* state);
 int contains(struct linked_list*, struct game_state*);
+int checkVisited(struct queue*, struct game_state*);
 
 void enqueue(struct queue *q, struct game_state state) {
     insert_at_head(&q->data, serialize(state));
@@ -48,11 +49,17 @@ int number_of_moves(struct game_state start) {
 	    return state.num_steps;
 	}
 
+	/*
 	if(contains(visited, &state) == 1){
 	    continue;
 	}
 
 	insert_at_head(visited, serialize(state));
+	*/
+
+	if(checkVisited(q, &state) == 1){
+	    continue;
+	}
 
 	if(state.empty_row < 3){
 	    move_up(&state);
@@ -132,6 +139,7 @@ int contains(struct linked_list* list, struct game_state* valueState){
 	    node = node->next;
 	    continue;
 	}
+
 	curr = deserialize(node->value);
 	int flag = 0;
 	for(r = 0; r < 4 && flag == 0; r++){
@@ -141,6 +149,33 @@ int contains(struct linked_list* list, struct game_state* valueState){
 		}
 	    }
 	}
+	if(flag == 0){
+	    return 1;
+	}
+
+	node = node->next;
+    }
+
+    return 0;
+}
+
+int checkVisited(struct queue* q, struct game_state* state){
+    struct linked_list list = q->data;
+    struct list_node* node = list.head;
+
+    while(node->next != NULL){
+	struct game_state curr = deserialize(node->value);
+	
+	int flag = 0;
+	int r, c;
+	for(r = 0; r < 4 && flag == 0; r++){
+	    for(c = 0; c < 4 && flag == 0; c++){
+		if(curr.tiles[r][c] != state->tiles[r][c]){
+		    flag = 1;
+		}
+	    }
+	}
+
 	if(flag == 0){
 	    return 1;
 	}

@@ -31,12 +31,6 @@ int number_of_moves(struct game_state start) {
     q->data = *list;
     struct game_state state; 
 
-    struct linked_list* visited = malloc(sizeof(struct linked_list));
-    struct list_node* a = malloc(sizeof(struct list_node));
-    a->value = 0;
-    a->next = NULL;
-    visited->head = a;
-
     int qSize = 1;
     while(qSize > 0){
 	state = dequeue(q);
@@ -45,25 +39,11 @@ int number_of_moves(struct game_state start) {
 	//Base case	
 	if(checkWin(&state) == 1){
 	    //printVisited(visited);
-	    free_list(*visited);
 	    free_list(q->data);
+	    free(list);
 	    free(q);
 	    return state.num_steps;
 	}
-
-	/*
-
-	int steps = state.num_steps;
-	state.num_steps = 0;
-
-	if(contains(visited, &state) == 1){
-	    continue;
-	}
-
-	insert_at_head(visited, serialize(state));
-	state.num_steps = steps;
-	//printState(&state);
-	*/
 
 	if(checkVisited(q, &state)){
 	    continue;
@@ -102,10 +82,9 @@ int number_of_moves(struct game_state start) {
 	}
     }
 
-    printVisited(visited);
 
-    free_list(*visited);
     free_list(q->data);
+    free(list);
     free(q);
     printf("NOT FOUND\n");
     return 0;

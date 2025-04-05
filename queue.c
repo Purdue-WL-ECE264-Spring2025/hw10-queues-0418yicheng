@@ -49,17 +49,12 @@ int number_of_moves(struct game_state start) {
 	    return state.num_steps;
 	}
 
-	/*
 	if(contains(visited, &state) == 1){
 	    continue;
 	}
 
 	insert_at_head(visited, serialize(state));
-	*/
-
-	if(checkVisited(q, &state) == 1){
-	    continue;
-	}
+	
 
 	if(state.empty_row < 3){
 	    move_up(&state);
@@ -92,8 +87,6 @@ int number_of_moves(struct game_state start) {
 	    move_left(&state);
 	    state.num_steps-=2;
 	}
-
-
     }
 
     free_list(*visited);
